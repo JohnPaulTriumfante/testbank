@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}Exam - Test Bank System{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-10">
+        <h1>📋 {{ chapter_title }} - Exam</h1>
+        <p class="text-muted">Total Questions: <strong>{{ questions|length }}</strong></p>
+    </div>
+    <div class="col-md-2 text-end">
+        <span class="badge bg-warning text-dark">TEST MODE</span>
+    </div>
+</div>
+
+<form action="/submit_exam" method="post" class="mb-5">
+    <input type="hidden" name="chapter_id" value="{{ chapter_id }}">
+    
+    {% for question in questions %}
+    <div class="card mb-4">
+        <div class="card-header bg-light">
+            <h5 class="mb-0">Question {{ loop.index }} of {{ questions|length }}</h5>
+        </div>
+        <div class="card-body">
+            <!-- Problem Text (if available) -->
+            {% if question.problem_text %}
+            <div class="alert alert-light mb-3">
+                <small class="text-muted"><strong>Problem:</strong></small>
+                <p class="mb-0">{{ question.problem_text }}</p>
+            </div>
+            {% endif %}
+            
+            <!-- Question -->
+            <h6 class="fw-bold mb-3">❓ {{ question.question_text }}</h6>
+            
+            <!-- Answer Choices (randomized) -->
+            <div class="ms-3">
+                {% for choice in question.shuffled_choices %}
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="radio" name="question_{{ question.id }}" 
+                           id="choice_{{ choice.id }}" value="{{ choice.choice_label }}" required>
+                    <label class="form-check-label" for="choice_{{ choice.id }}">
+                        <strong>{{ choice.choice_label }}.</strong> {{ choice.choice_text }}
+                    </label>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
+    <!-- Submit Button -->
+    <div class="d-grid gap-2 mb-5">
+        <button type="submit" class="btn btn-success btn-lg">✓ Submit Exam</button>
+        <a href="/generate_exam" class="btn btn-secondary btn-lg">Cancel</a>
+    </div>
+</form>
+
+{% endblock %}
