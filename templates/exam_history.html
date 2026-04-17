@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}Exam History - Test Bank System{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h1>Exam History</h1>
+        <p class="text-muted">View and download previously generated exams.</p>
+    </div>
+    <div class="col-md-4 text-end">
+        <a href="/generate_exam" class="btn btn-primary">Generate New Exam</a>
+    </div>
+</div>
+
+{% if exams %}
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Filename</th>
+                    <th>Chapter</th>
+                    <th>Questions</th>
+                    <th>Created</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for exam in exams %}
+                <tr>
+                    <td>
+                        <a href="/download_exam/{{ exam.id }}" style="color: #0d7377; text-decoration: none; font-weight: 500;">
+                            {{ exam.filename }}
+                        </a>
+                    </td>
+                    <td>
+                        <small>Chapter {{ exam.chapter_number }}: {{ exam.chapter_title }}</small>
+                    </td>
+                    <td>
+                        <span class="badge bg-light text-dark">{{ exam.num_questions }}</span>
+                        {% if exam.include_problems %}<span class="badge bg-light text-dark">+ Problems</span>{% endif %}
+                    </td>
+                    <td>
+                        <small class="text-muted">{{ exam.created_date }}</small>
+                    </td>
+                    <td>
+                        <a href="/download_exam/{{ exam.id }}" class="btn btn-sm btn-primary">Download</a>
+                        <form action="/delete_exam/{{ exam.id }}" method="POST" style="display: inline;">
+                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Delete this exam from history?')">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="alert alert-info mt-4">
+    <p style="margin-bottom: 0;"><strong>Info:</strong> Click on any filename to download the exam PDF. Files are stored locally in the <code>generated_exams</code> folder.</p>
+</div>
+
+{% else %}
+<div class="alert alert-info">
+    <strong>No exams generated yet.</strong> <a href="/generate_exam">Generate your first exam</a> to see it appear in this history.
+</div>
+{% endif %}
+
+{% endblock %}

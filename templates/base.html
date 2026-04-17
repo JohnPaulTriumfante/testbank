@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Test Bank System{% endblock %}</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-dark: #1a2332;
+            --primary-light: #2d3e50;
+            --accent-teal: #0d7377;
+            --accent-light: #4ecdc4;
+            --text-dark: #2b3e4f;
+            --text-light: #5a6c7d;
+            --bg-light: #f8fafb;
+            --bg-white: #ffffff;
+            --border-color: #e1e8ed;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --danger: #c0392b;
+            --info: #3498db;
+        }
+        
+        * {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 
+                         'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', 
+                         sans-serif;
+        }
+        
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+        
+        nav.navbar {
+            background-color: var(--primary-dark);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        nav.navbar .navbar-brand {
+            font-weight: 600;
+            font-size: 1.3rem;
+            color: var(--bg-white) !important;
+            letter-spacing: 0.5px;
+        }
+        
+        nav.navbar .nav-link {
+            color: rgba(255, 255, 255, 0.75) !important;
+            transition: color 0.2s;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+        
+        nav.navbar .nav-link:hover {
+            color: var(--accent-light) !important;
+        }
+        
+        .container-main {
+            flex: 1;
+            padding: 40px 0;
+        }
+        
+        .card {
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            transition: box-shadow 0.3s, border-color 0.3s;
+            background-color: var(--bg-white);
+        }
+        
+        .card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            border-color: var(--accent-light);
+        }
+        
+        .btn-primary {
+            background-color: var(--accent-teal);
+            border: none;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary:hover {
+            background-color: #065d68;
+            box-shadow: 0 2px 8px rgba(13, 115, 119, 0.25);
+        }
+        
+        .btn-secondary {
+            background-color: var(--text-light);
+            border: none;
+            font-weight: 500;
+        }
+        
+        .btn-secondary:hover {
+            background-color: var(--text-dark);
+        }
+        
+        .btn-danger {
+            background-color: var(--danger);
+            border: none;
+            font-weight: 500;
+        }
+        
+        .btn-danger:hover {
+            background-color: #a73521;
+        }
+        
+        .btn-info {
+            background-color: var(--info);
+            border: none;
+            font-weight: 500;
+        }
+        
+        .btn-info:hover {
+            background-color: #2980b9;
+        }
+        
+        .form-control, .form-select {
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 0.95rem;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: var(--accent-teal);
+            box-shadow: 0 0 0 0.2rem rgba(13, 115, 119, 0.15);
+        }
+        
+        h1 {
+            color: var(--primary-dark);
+            font-weight: 700;
+            margin-bottom: 8px;
+            font-size: 2.2rem;
+        }
+        
+        h2 {
+            color: var(--primary-dark);
+            font-weight: 600;
+            margin-bottom: 24px;
+            font-size: 1.6rem;
+        }
+        
+        h3 {
+            color: var(--primary-light);
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        
+        h5 {
+            color: var(--primary-dark);
+            font-weight: 600;
+        }
+        
+        .text-muted {
+            color: var(--text-light) !important;
+        }
+        
+        .alert {
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            border-radius: 6px;
+        }
+        
+        .alert-info {
+            background-color: #e7f3ff;
+            color: #004085;
+            border-color: #b8daff;
+        }
+        
+        .alert-warning {
+            background-color: #fff3cd;
+            color: #856404;
+            border-color: #ffeaa7;
+        }
+        
+        footer {
+            background-color: var(--primary-dark);
+            color: rgba(255, 255, 255, 0.8);
+            text-align: center;
+            padding: 24px;
+            margin-top: 40px;
+            font-size: 0.9rem;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        table {
+            font-size: 0.95rem;
+        }
+        
+        th {
+            background-color: var(--bg-light);
+            color: var(--primary-dark);
+            font-weight: 600;
+            border-bottom: 2px solid var(--border-color);
+        }
+        
+        td {
+            border-color: var(--border-color);
+        }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-lg">
+            <a class="navbar-brand" href="/">Test Bank System</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/add_question">Add Question</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/chapters">View Questions</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/generate_exam">Export Exam PDFs</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/exam_history">Exam History</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container-lg container-main">
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2026 Test Bank Management System.</p>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
