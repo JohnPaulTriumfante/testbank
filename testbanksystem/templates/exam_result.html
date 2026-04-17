@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}Exam Results - Test Bank System{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h1>📊 Exam Results</h1>
+    </div>
+    <div class="col-md-4 text-end">
+        <a href="/generate_exam" class="btn btn-primary">Generate Another Exam</a>
+    </div>
+</div>
+
+<!-- Score Summary -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card border-success">
+            <div class="card-body text-center">
+                <h5 class="card-title">Your Score</h5>
+                <p class="card-text" style="font-size: 3rem; font-weight: bold; color: #28a745;">
+                    {{ score }}/{{ total }}
+                </p>
+                <p class="text-muted">
+                    <strong>{{ percentage }}%</strong>
+                    {% if percentage >= 80 %}
+                    <span class="badge bg-success">EXCELLENT</span>
+                    {% elif percentage >= 60 %}
+                    <span class="badge bg-info">GOOD</span>
+                    {% else %}
+                    <span class="badge bg-warning">NEEDS IMPROVEMENT</span>
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Summary</h5>
+                <p><strong>✓ Correct:</strong> {{ score }}</p>
+                <p><strong>✗ Incorrect:</strong> {{ total - score }}</p>
+                <p><strong>📋 Total:</strong> {{ total }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Detailed Results -->
+<div class="row">
+    <div class="col-md-12">
+        <h2>📝 Detailed Results</h2>
+    </div>
+</div>
+
+{% for result in results %}
+<div class="card mb-3 {% if result.is_correct %}border-success{% else %}border-danger{% endif %}">
+    <div class="card-header {% if result.is_correct %}bg-success text-white{% else %}bg-danger text-white{% endif %}">
+        <h6 class="mb-0">Question {{ loop.index }} 
+            {% if result.is_correct %}
+            <span class="badge bg-light text-success">✓ CORRECT</span>
+            {% else %}
+            <span class="badge bg-light text-danger">✗ INCORRECT</span>
+            {% endif %}
+        </h6>
+    </div>
+    <div class="card-body">
+        <h6 class="fw-bold mb-3">❓ {{ result.question_text }}</h6>
+        
+        <div class="ms-3 mb-3">
+            <p><strong>Your Answer:</strong> <span class="badge bg-info">{{ result.selected }}</span></p>
+            <p><strong>Correct Answer:</strong> <span class="badge bg-success">{{ result.correct }}</span></p>
+        </div>
+        
+        <div class="alert alert-light">
+            <strong>💡 Explanation:</strong><br>
+            {{ result.explanation }}
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+<!-- Hidden form data for PDF export -->
+<form id="pdf_export_form" action="/export_exam_results_pdf" method="post" style="display: none;">
+    <input type="hidden" name="score" value="{{ score }}">
+    <input type="hidden" name="total" value="{{ total }}">
+    <input type="hidden" name="percentage" value="{{ percentage }}">
+    <input type="hidden" name="results_json" value="{{ results_json }}">
+</form>
+
+<!-- Action Buttons -->
+<div class="row mt-5 mb-5">
+    <div class="col-md-12">
+        <div class="d-grid gap-2 mb-3">
+            <!-- PDF Export Button -->
+            <button onclick="document.getElementById('pdf_export_form').submit();" class="btn btn-danger btn-lg">📄 Export Results as PDF</button>
+        </div>
+        <div class="text-center">
+            <a href="/generate_exam" class="btn btn-primary btn-lg">Generate Another Exam</a>
+            <a href="/" class="btn btn-secondary btn-lg">Back to Dashboard</a>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
