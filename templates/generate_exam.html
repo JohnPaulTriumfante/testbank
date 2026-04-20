@@ -1,0 +1,281 @@
+{% extends "base.html" %}
+
+{% block title %}Export Exam - Test Bank System{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h1>Generate Exam</h1>
+        <p class="text-muted">Select a chapter and configure options to generate and download exams as PDF or Word documents.</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-6 offset-lg-3">
+        {% if chapters %}
+        <div class="card p-4">
+            <h5 class="mb-4">Exam Configuration</h5>
+            <p class="text-muted mb-3">Select a chapter and configure options to generate exams.</p>
+            
+            <!-- Mode Toggle -->
+            <div class="mb-4">
+                <label class="form-label fw-bold">Selection Mode</label>
+                <div class="btn-group w-100" role="group">
+                    <input type="radio" class="btn-check" name="mode" id="mode_random" value="random" checked onchange="toggleMode()">
+                    <label class="btn btn-outline-primary" for="mode_random">Random Selection</label>
+                    
+                    <input type="radio" class="btn-check" name="mode" id="mode_manual" value="manual" onchange="toggleMode()">
+                    <label class="btn btn-outline-primary" for="mode_manual">Manual Selection</label>
+                </div>
+            </div>
+            
+            <form action="/preview_exam" method="post" id="exam_form">
+                <div class="mb-4">
+                    <label for="chapter_id" class="form-label fw-bold">Select Chapter <span class="text-danger">*</span></label>
+                    <select class="form-select form-select-lg" name="chapter_id" id="chapter_id" required onchange="updateMaxQuestions()">
+                        <option value="">-- Select Chapter --</option>
+                        {% for chapter in chapters %}
+                        <option value="{{ chapter.id }}" data-max="{{ question_counts[chapter.id] }}" {% if selected_chapter_id and selected_chapter_id|int == chapter.id %}selected{% endif %}>
+                            Chapter {{ chapter.chapter_number }}: {{ chapter.chapter_title }} ({{ question_counts[chapter.id] }} questions)
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Random Mode Fields -->
+                <div id="random_mode">
+                    <div class="mb-4">
+                        <label for="num_questions" class="form-label fw-bold">Number of Questions <span class="text-danger">*</span></label>
+                        <input type="number" class="form-control form-control-lg" name="num_questions" id="num_questions" 
+                            min="1" max="100" value="{{ selected_num_questions or 10 }}" required>
+                        <small class="text-muted" id="question_info">Select a chapter to see available questions</small>
+                    </div>
+                </div>
+
+                <!-- Manual Mode Fields -->
+                <div id="manual_mode" class="d-none">
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Select Questions</label>
+                        <div id="questions_list" class="border rounded p-3" style="max-height: 400px; overflow-y: auto; background-color: #f8fafb;">
+                            <p class="text-muted">Select a chapter first</p>
+                        </div>
+                        <small class="text-muted d-block mt-2">Select one or more questions to include in the exam</small>
+                    </div>
+                    <div class="mb-4">
+                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="randomizeManualSelection()">Auto-select 10 Random</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="clearManualSelection()">Clear All</button>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <div class="form-check form-check-lg">
+                        <input class="form-check-input" type="checkbox" name="include_problems" id="include_problems" value="yes" {% if selected_include_problems %}checked{% endif %}>
+                        <label class="form-check-label" for="include_problems">
+                            <strong>Include Problem Statements</strong>
+                            <small class="d-block text-muted mt-1">Show problem/scenario text before each question</small>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label for="file_format" class="form-label fw-bold">File Format <span class="text-danger">*</span></label>
+                    <select class="form-select form-select-lg" name="file_format" id="file_format" required>
+                        <option value="pdf" {% if not selected_file_format or selected_file_format == 'pdf' %}selected{% endif %}>PDF - Professional formatted document</option>
+                        <option value="docx" {% if selected_file_format == 'docx' %}selected{% endif %}>Word (DOCX) - Editable document</option>
+                    </select>
+                </div>
+
+                <div class="mb-4">
+                    <label for="custom_filename" class="form-label fw-bold">Exam File Name (Optional)</label>
+                    <input type="text" class="form-control form-control-lg" name="custom_filename" id="custom_filename" 
+                        placeholder="e.g., Accounting_Intro_Midterm_Spring2024" value="{{ selected_custom_filename or '' }}">
+                    <small class="text-muted">Leave blank for auto-generated name. Use alphanumeric characters, spaces, and hyphens.</small>
+                </div>
+
+                <div class="alert alert-warning d-none" id="warning_alert">
+                    <strong>Note:</strong> The chapter has only <span id="max_available">0</span> questions. The export will include all available questions.
+                </div>
+
+                <input type="hidden" name="mode" id="mode_input" value="random">
+                <input type="hidden" name="selected_question_ids" id="selected_question_ids" value="">
+
+                <div class="d-grid gap-3">
+                    <button type="submit" name="action" value="preview" class="btn btn-primary btn-lg">Preview Exam</button>
+                    <button type="submit" name="action" value="download" class="btn btn-primary btn-lg">Download as <span id="format_label">PDF</span></button>
+                    <a href="/" class="btn btn-secondary btn-lg">Cancel</a>
+                </div>
+            </form>
+
+        </div>
+
+        {% else %}
+        <div class="alert alert-warning">
+            <strong>No chapters available</strong><br>
+            You need to add questions first before exporting exams.
+            <a href="/add_question" class="btn btn-primary btn-sm mt-2">Add Questions</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+// Store questions data
+let allQuestionsData = {};
+
+function toggleMode() {
+    const mode = document.querySelector('input[name="mode"]:checked').value;
+    document.getElementById('mode_input').value = mode;
+    
+    if (mode === 'random') {
+        document.getElementById('random_mode').classList.remove('d-none');
+        document.getElementById('manual_mode').classList.add('d-none');
+        document.getElementById('num_questions').required = true;
+    } else {
+        document.getElementById('random_mode').classList.add('d-none');
+        document.getElementById('manual_mode').classList.remove('d-none');
+        document.getElementById('num_questions').required = false;
+        loadQuestionsForChapter();
+    }
+}
+
+async function loadQuestionsForChapter() {
+    const chapterId = document.getElementById('chapter_id').value;
+    if (!chapterId) {
+        document.getElementById('questions_list').innerHTML = '<p class="text-muted">Select a chapter first</p>';
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/api/chapter/${chapterId}/questions`);
+        const data = await response.json();
+        allQuestionsData = data.questions;
+        renderQuestionCheckboxes(data.questions);
+    } catch (e) {
+        document.getElementById('questions_list').innerHTML = '<p class="text-danger">Error loading questions</p>';
+    }
+}
+
+function renderQuestionCheckboxes(questions) {
+    if (questions.length === 0) {
+        document.getElementById('questions_list').innerHTML = '<p class="text-muted">No questions in this chapter</p>';
+        return;
+    }
+    
+    let html = '';
+    questions.forEach(q => {
+        html += `
+            <div class="form-check mb-2">
+                <input class="form-check-input question-checkbox" type="checkbox" name="selected_questions" value="${q.id}" id="q_${q.id}">
+                <label class="form-check-label" for="q_${q.id}">
+                    <small><strong>${q.question_text.substring(0, 70)}...</strong></small><br>
+                    <small class="text-muted">Problem: ${q.problem_code} | Standard: ${q.standard}</small>
+                </label>
+            </div>
+        `;
+    });
+    document.getElementById('questions_list').innerHTML = html;
+}
+
+function randomizeManualSelection() {
+    const checkboxes = document.querySelectorAll('.question-checkbox');
+    checkboxes.forEach(cb => cb.checked = false);
+    
+    const shuffled = [...checkboxes].sort(() => Math.random() - 0.5).slice(0, 10);
+    shuffled.forEach(cb => cb.checked = true);
+}
+
+function clearManualSelection() {
+    document.querySelectorAll('.question-checkbox').forEach(cb => cb.checked = false);
+}
+
+function updateMaxQuestions() {
+    const chapter = document.getElementById('chapter_id');
+    const numQuestionsInput = document.getElementById('num_questions');
+    const warningAlert = document.getElementById('warning_alert');
+    const questionInfo = document.getElementById('question_info');
+    const maxAvailable = document.getElementById('max_available');
+    
+    const selectedOption = chapter.options[chapter.selectedIndex];
+    const maxQuestions = parseInt(selectedOption.dataset.max) || 0;
+    
+    // Load questions for manual mode
+    const mode = document.querySelector('input[name="mode"]:checked').value;
+    if (mode === 'manual') {
+        loadQuestionsForChapter();
+    }
+    
+    if (maxQuestions > 0) {
+        numQuestionsInput.max = maxQuestions;
+        if (parseInt(numQuestionsInput.value) > maxQuestions) {
+            numQuestionsInput.value = maxQuestions;
+        }
+        questionInfo.textContent = `Maximum available: ${maxQuestions} questions`;
+        if (maxQuestions >= 1) {
+            warningAlert.classList.add('d-none');
+        }
+    } else {
+        questionInfo.textContent = 'Select a chapter to see available questions';
+        numQuestionsInput.max = 100;
+    }
+    
+    numQuestionsInput.addEventListener('change', function() {
+        if (maxQuestions > 0 && parseInt(this.value) > maxQuestions) {
+            warningAlert.classList.remove('d-none');
+            maxAvailable.textContent = maxQuestions;
+            this.value = maxQuestions;
+        } else {
+            warningAlert.classList.add('d-none');
+        }
+    });
+}
+
+document.getElementById('file_format').addEventListener('change', function() {
+    const label = this.value.toUpperCase();
+    document.getElementById('format_label').textContent = label;
+});
+
+// Form submission handler
+document.getElementById('exam_form').addEventListener('submit', function(e) {
+    const mode = document.querySelector('input[name="mode"]:checked').value;
+    if (mode === 'manual') {
+        const selected = document.querySelectorAll('.question-checkbox:checked');
+        if (selected.length === 0) {
+            e.preventDefault();
+            alert('Please select at least one question');
+            return;
+        }
+        const ids = Array.from(selected).map(cb => cb.value).join(',');
+        document.getElementById('selected_question_ids').value = ids;
+    }
+});
+
+window.addEventListener('load', function() {
+    try { updateMaxQuestions(); } catch (e) { }
+    
+    // Restore settings from URL query parameters (when coming back from preview)
+    const urlParams = new URLSearchParams(window.location.search);
+    const mode = urlParams.get('mode');
+    const selectedQuestionIds = urlParams.get('selected_question_ids');
+    
+    if (mode === 'manual') {
+        // Set mode to manual
+        document.getElementById('mode_manual').checked = true;
+        toggleMode();
+        
+        // After a short delay, check the previously selected questions
+        setTimeout(() => {
+            if (selectedQuestionIds) {
+                const ids = selectedQuestionIds.split(',');
+                ids.forEach(id => {
+                    const checkbox = document.getElementById(`q_${id}`);
+                    if (checkbox) {
+                        checkbox.checked = true;
+                    }
+                });
+            }
+        }, 500);
+    }
+});
+</script>
+
+{% endblock %}
