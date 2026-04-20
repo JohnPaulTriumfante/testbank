@@ -23,8 +23,11 @@
                     <strong>{{ problem_count }}</strong> problem(s)
                 </p>
             </div>
-            <div class="card-footer bg-light border-0">
+            <div class="card-footer bg-light border-0 d-flex gap-2">
                 <a href="/chapter/{{ chapter.id }}" class="btn btn-primary btn-sm">View Questions</a>
+                <form action="/delete_chapter/{{ chapter.id }}" method="post" onsubmit="return confirm('Delete this chapter and all its problems/questions?');">
+                    <button type="submit" class="btn btn-danger btn-sm">Delete Chapter</button>
+                </form>
             </div>
         </div>
     </div>
