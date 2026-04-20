@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Test Bank System{% endblock %}
+
+{% block content %}
+<div class="row mb-5">
+    <div class="col-md-12">
+        <h1>Dashboard</h1>
+        
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-5">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <p class="text-muted mb-1" style="font-size: 0.85rem;">Total Chapters</p>
+                        <p style="font-size: 2.5rem; font-weight: 700; color: #0d7377; margin: 0;">{{ chapters_count }}</p>
+                    </div>
+                    <div style="font-size: 3rem; color: #e1e8ed;">📚</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <p class="text-muted mb-1" style="font-size: 0.85rem;">Total Questions</p>
+                        <p style="font-size: 2.5rem; font-weight: 700; color: #0d7377; margin: 0;">{{ questions_count }}</p>
+                    </div>
+                    <div style="font-size: 3rem; color: #e1e8ed;">❓</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <p class="text-muted mb-1" style="font-size: 0.85rem;">Total Problems</p>
+                        <p style="font-size: 2.5rem; font-weight: 700; color: #0d7377; margin: 0;">{{ problems_count }}</p>
+                    </div>
+                    <div style="font-size: 3rem; color: #e1e8ed;">📝</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h2>Quick Actions</h2>
+    </div>
+</div>
+
+<div class="row g-3">
+    <!-- Add Question -->
+    <div class="col-md-6 col-lg-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title mb-3">Add New Question</h5>
+                <p class="text-muted mb-4">Add a new multiple-choice question with answer choices and explanation to the test bank.</p>
+                <a href="/add_question" class="btn btn-primary btn-sm w-100">Add Question</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Questions -->
+    <div class="col-md-6 col-lg-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title mb-3">View Questions</h5>
+                <p class="text-muted mb-4">Browse, edit, or delete questions organized by chapter. Search and manage your question bank.</p>
+                <a href="/chapters" class="btn btn-primary btn-sm w-100">View Questions</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Exams as PDF -->
+    <div class="col-md-6 col-lg-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title mb-3">Generate Exam PDFs</h5>
+                <p class="text-muted mb-4">Create and download professional exam PDFs with randomized questions and answer keys.</p>
+                <a href="/generate_exam" class="btn btn-primary btn-sm w-100">Generate PDFs</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Exam History -->
+    <div class="col-md-6 col-lg-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title mb-3">Exam History</h5>
+                <p class="text-muted mb-4">View, download, and manage all previously generated exam files.</p>
+                <a href="/exam_history" class="btn btn-primary btn-sm w-100">View History</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<!-- Features section removed as requested -->
+
+{% endblock %}
